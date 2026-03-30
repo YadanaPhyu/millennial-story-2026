@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>We had the best childhoods and the worst midlife, a millennial data story</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #FAF9F6; --bg-secondary: #F2F0EB;
+    --text-primary: #1A1814; --text-secondary: #5A564F; --text-tertiary: #9A9590;
+    --border: rgba(26,24,20,0.1); --border-mid: rgba(26,24,20,0.18);
+    --accent: #C4622D; --accent-light: #F5E8DF; --radius: 10px;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text-primary); font-family: 'Geist', sans-serif; font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+  /* LANGUAGE TOGGLE */
+  .lang-bar { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 0.5px solid var(--border); padding: 10px 1.5rem; display: flex; justify-content: flex-end; }
+  .lang-toggle { display: flex; border: 0.5px solid var(--border-mid); border-radius: 99px; overflow: hidden; }
+  .lang-btn { padding: 5px 16px; font-size: 12px; font-family: 'Geist', sans-serif; background: transparent; border: none; cursor: pointer; color: var(--text-tertiary); transition: all 0.15s; }
+  .lang-btn.active { background: var(--accent); color: #fff; }
+
+  .story { max-width: 700px; margin: 0 auto; padding: 3rem 1.5rem 6rem; }
+
+  /* LANGUAGE LAYERS */
+  .mm { display: none; }
+  body.lang-mm .en { display: none; }
+  body.lang-mm .mm { display: block; }
+  .mm-inline { display: none; }
+  body.lang-mm .mm-inline { display: inline; }
+  body.lang-mm .en-inline { display: none; }
+
+  /* HEADER */
+  .topic-tag { display: inline-flex; align-items: center; gap: 8px; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 1.25rem; }
+  .topic-tag::before { content: ''; display: inline-block; width: 20px; height: 1px; background: var(--accent); }
+  h1 { font-family: 'Instrument Serif', serif; font-size: clamp(1.9rem, 5vw, 3rem); font-weight: 400; line-height: 1.15; color: var(--text-primary); margin-bottom: 1.1rem; }
+  h1 em { color: var(--accent); font-style: italic; }
+  .deck { font-size: 17px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 1.5rem; }
+  .byline { font-size: 12px; color: var(--text-tertiary); display: flex; gap: 1rem; flex-wrap: wrap; padding-bottom: 2rem; border-bottom: 0.5px solid var(--border); }
+
+  /* SPARK */
+  .spark { display: flex; gap: 11px; align-items: flex-start; background: var(--bg-secondary); border: 0.5px solid var(--border-mid); border-radius: var(--radius); padding: 13px 16px; font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin: 2rem 0; }
+  .spark-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 4px; }
+  .spark strong { font-weight: 500; color: var(--text-primary); }
+
+  /* PROSE */
+  .prose { font-size: 16px; color: var(--text-secondary); line-height: 1.85; margin-bottom: 1.5rem; }
+
+  /* PART LABEL */
+  .part { display: flex; align-items: center; gap: 10px; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-tertiary); margin: 3rem 0 1.25rem; padding-bottom: 10px; border-bottom: 0.5px solid var(--border); }
+  .part-num { font-family: 'Instrument Serif', serif; font-size: 13px; color: var(--accent); font-style: italic; font-weight: 400; }
+
+  /* CHART */
+  .chart-title { font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 3px; }
+  .chart-sub { font-size: 11px; color: var(--text-tertiary); margin-bottom: 1.1rem; }
+  .chart-wrap { position: relative; width: 100%; margin-bottom: 2rem; }
+
+  /* INSIGHT */
+  .insight { border-left: 3px solid var(--accent); padding: 1rem 1.2rem; background: var(--bg-secondary); border-radius: 0 var(--radius) var(--radius) 0; margin: 0 0 3rem; }
+  .insight-lbl { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .insight-text { font-family: 'Instrument Serif', serif; font-size: 15px; font-style: italic; color: var(--text-primary); line-height: 1.7; }
+
+  /* STAT CARDS */
+  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 2rem; }
+  .stat-card { background: #fff; border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px; }
+  .stat-num { font-size: 1.75rem; font-weight: 300; color: var(--text-primary); margin-bottom: 2px; }
+  .stat-num span { font-size: 1rem; color: var(--accent); }
+  .stat-label { font-size: 11px; color: var(--text-tertiary); line-height: 1.4; }
+
+  /* TIMELINE */
+  .timeline { margin: 0 0 2.5rem; display: flex; flex-direction: column; }
+  .t-event { display: grid; grid-template-columns: 56px 1fr; padding: 14px 0; border-bottom: 0.5px solid var(--border); }
+  .t-event:first-child { border-top: 0.5px solid var(--border); }
+  .t-year { font-family: 'Instrument Serif', serif; font-size: 1rem; font-style: italic; color: var(--accent); padding-top: 1px; }
+  .t-body { padding-left: 1rem; border-left: 0.5px solid var(--border); }
+  .t-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 3px; }
+  .t-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+
+  /* MYANMAR CALLOUT */
+  .myanmar-callout { background: var(--accent-light); border: 1px solid #E8A07A; border-radius: var(--radius); padding: 1.5rem; margin-bottom: 3rem; }
+  .myanmar-callout .lbl { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .myanmar-callout h3 { font-family: 'Instrument Serif', serif; font-size: 1.1rem; font-weight: 400; color: var(--text-primary); margin-bottom: 8px; line-height: 1.4; }
+  .myanmar-callout p { font-size: 13px; color: #6A3010; line-height: 1.75; }
+
+  /* BLOCKQUOTE */
+  blockquote { font-family: 'Instrument Serif', serif; font-size: 1.25rem; font-style: italic; color: var(--text-primary); line-height: 1.55; border-left: 3px solid var(--accent); padding: 0.5rem 1.25rem; margin: 2rem 0; }
+
+  /* DATA NOTE */
+  .data-note { background: var(--bg-secondary); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 2rem; font-size: 12px; color: var(--text-tertiary); line-height: 1.7; }
+  .data-note strong { color: var(--text-secondary); font-weight: 500; }
+
+  /* DISCLAIMER */
+  .disclaimer { background: var(--bg-secondary); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 2rem; font-size: 12px; color: var(--text-tertiary); line-height: 1.7; }
+  .disclaimer strong { color: var(--text-secondary); font-weight: 500; }
+
+  /* SOURCES */
+  .sources { border-top: 0.5px solid var(--border); padding-top: 2.5rem; margin-top: 3rem; }
+  .sources-title { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-tertiary); padding-bottom: 10px; border-bottom: 0.5px solid var(--border); margin-bottom: 1.1rem; }
+  .source-item { display: grid; grid-template-columns: 20px 1fr; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid var(--border); align-items: start; }
+  .source-num { font-size: 11px; color: var(--text-tertiary); padding-top: 2px; }
+  .source-link { font-size: 13px; font-weight: 500; color: var(--accent); text-decoration: none; display: block; margin-bottom: 2px; line-height: 1.4; }
+  .source-link:hover { text-decoration: underline; }
+  .source-meta { font-size: 11px; color: var(--text-tertiary); }
+  .source-tag { display: inline-block; font-size: 9px; letter-spacing: 0.07em; text-transform: uppercase; padding: 1px 7px; border-radius: 99px; border: 0.5px solid var(--border-mid); color: var(--text-secondary); margin-left: 5px; }
+  .sources-note { font-size: 11px; color: var(--text-tertiary); line-height: 1.7; margin-top: 1.25rem; }
+
+  @media (max-width: 540px) {
+    .story { padding: 2.5rem 1.1rem 4rem; }
+    .stat-row { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LANGUAGE TOGGLE -->
+<div class="lang-bar">
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('en')" id="btn-en">English</button>
+    <button class="lang-btn" onclick="setLang('mm')" id="btn-mm">မြန်မာ</button>
+  </div>
+</div>
+
+<div class="story">
+
+  <!-- HEADER -->
+  <p class="topic-tag">
+    <span class="en">Generations · Music · Economy</span>
+    <span class="mm">မျိုးဆက်များ · တေးဂီတ · စီးပွားရေး</span>
+  </p>
+
+  <h1>
+    <span class="en">We had the best childhoods. Then the <em>world changed</em> just as we were supposed to settle down.</span>
+    <span class="mm">တို့တွေမှာ အကောင်းဆုံး ကလေးဘဝလေးတွေ ရှိခဲ့ဖူးတယ်။ ဒါပေမဲ့ တကယ်တမ်း အခြေချဖို့ ပြင်ဆင်ရမယ့်အချိန်ကျမှ <em>ကမ္ဘာကြီးက အပြီးတိုင် ပြောင်းလဲသွားခဲ့တယ်</em>။</span>
+  </h1>
+
+  <p class="deck en">I was ironing clothes and listening to music from the early 2000s. Something about those songs stopped me, a feeling that those years had a quality the world has since lost. So I went looking for the data. It agreed with me.</p>
+  <p class="deck mm">တစ်နေ့က အဝတ်မီးပူတိုက်ရင်း ၂၀၀၀ ပြည့်နှစ်အစောပိုင်းက သီချင်းလေးတွေ နားထောင်နေမိတယ်။ အဲဒီသီချင်းတွေနားထောင်ရင်း တခုတွေးမိလာတာက၊ အဲဒီနှစ်တွေတုန်းက ရှိခဲ့တဲ့ ထူးခြားတဲ့ အရည်အသွေးတစ်ခုကို အခုကမ္ဘာကြီးမှာ ရှာမရတော့ဘူးလို့ ခံစားလိုက်ရတာ။ အဲဒါနဲ့ပဲ တကယ်လားဆိုတာ သိချင်လို့ ဒေတာတွေကို လိုက်ရှာကြည့်မိတယ်။ အဖြေကတော့... ဒေတာတွေကလည်း ကိုယ့်ခံစားချက်နဲ့ အတော်လေးကိုက်ညီ‌နေခဲ့တာပါပဲ</p>
+
+  <div class="byline">
+    <span>Yadana Phyu</span>
+    <span>·</span>
+    <span>March 29, 2026</span>
+    <span>·</span>
+    <span class="en">12 min read</span><span class="mm">မိနစ် ၁၂ ဖတ်ချိန်</span>
+    <span>·</span>
+    <span class="en">A Burmese millennial's data story</span><span class="mm">မြန်မာ Millennial တစ်ယောက်ရဲ့ ဒေတာစူးစမ်းမှု</span>
+  </div>
+
+  <div class="spark">
+    <span class="spark-dot"></span>
+    <div>
+      <span class="en"><strong>Sparked by:</strong> Ironing clothes on a Sunday afternoon and listening to music from the late 1990s and early 2000s. A feeling that those years had something different. The question: was it real, or just nostalgia? I went to find out.</span>
+      <span class="mm"><strong>ဒီအကြောင်းအရာလေးရဲ့ အတွေးစက...</strong> တနင်္ဂနွေနေ့ခင်းတစ်ခုမှာ အဝတ်မီးပူတိုက်ရင်း ၁၉၉၀ နှောင်းပိုင်းနဲ့ ၂၀၀၀ ပြည့်နှစ်အစောပိုင်းက သီချင်းလေးတွေကို နားထောင်နေမိတာကနေ စတာပါ။ အဲဒီနှစ်တွေတုန်းက ခံစားချက်က အခုနဲ့ တခုခုကွဲပြားနေသလိုပဲလို့ ခံစားလိုက်ရတယ်။ ဒါက တကယ်ပဲလား၊ ဒါမှမဟုတ် ကိုယ်ကပဲ အတိတ်ကို လွမ်းနေတာလား? ဆိုတာကို သိချင်လို့ ဒေတာတွေထဲမှာ အဖြေလိုက်ရှာကြည့်မိတယ်။</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       PART ONE — THE CHILDHOOD
+  ═══════════════════════════════════════════ -->
+  <div class="part">
+    <span class="part-num">One</span>
+    <span class="en">The world we were born into</span>
+    <span class="mm">တို့တွေ မွေးဖွားကြီးပြင်းခဲ့ရတဲ့ ကမ္ဘာ</span>
+  </div>
+
+  <p class="prose en">I was born in 1990 in a village in Myanmar, part of the generation that economists now call millennials. We were children during what turned out to be the calmest economic window in modern history. Not that anyone told us this at the time. We just felt it.</p>
+  <p class="prose mm">ကျွန်မကို ၁၉၉၀ ဝန်းကျင်လောက်မှာ ရွာလေးတစ်ရွာမှာ မွေးဖွားခဲ့ပါတယ်၊ အခုခေတ် စီးပွားရေးပညာရှင်တွေက Millennial လို့ ခေါ်ကြတဲ့ မျိုးဆက်ပေါ့။ တို့တွေ ကလေးဘဝ ဖြတ်သန်းခဲ့ရတဲ့ အချိန်က ခေတ်သစ်သမိုင်းမှာ စီးပွားရေးအရ အေးအေးချမ်းချမ်းအရှိဆုံး ကာလတစ်ခု ဖြစ်ခဲ့တယ်။ အဲဒီတုန်းကတော့ ဘယ်သူမှ လာမပြောလို့ ဒါကို တို့တွေ မသိခဲ့ကြပေမဲ့... တကယ်တမ်းတော့ စိတ်ထဲမှာ အလိုလို ခံစားမိနေခဲ့ကြတာပါ။</p>
+
+  <p class="chart-title en">Global economic volatility — GDP growth fluctuations by decade</p>
+  <p class="chart-title mm">ကမ္ဘာ့စီးပွားရေး ဆယ်စုနှစ်အလိုက် GDP တိုးတက်မှု အတက်အကျ</p>
+  <p class="chart-sub">Source: World Bank · The Great Moderation, Stock & Watson (2002)</p>
+  <div class="chart-wrap" style="height:260px;"><canvas id="volatilityChart"></canvas></div>
+
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-num">1985<span>–07</span></div>
+      <div class="stat-label en">The "Great Moderation" lowest economic volatility in modern history</div>
+      <div class="stat-label mm">"Great Moderation" လို့ ခေါ်တဲ့... စီးပွားရေး အငြိမ်ဆုံးနဲ့ အေးချမ်းခဲ့တဲ့ နှစ်ကာလများ</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">7<span>%</span></div>
+      <div class="stat-label en">of global population in extreme poverty by 1998, down from 17% in 1980</div>
+      <div class="stat-label mm">၁၉၉၈ ခုနှစ်ရောက်တော့ ကမ္ဘာ့အဆိုးဆုံး ဆင်းရဲမွဲတေမှုနှုန်းက ၇% အထိ ထိုးဆင်းသွားခဲ့တယ် (၁၉၈၀ တုန်းက ၁၇% ရှိခဲ့တာပါ)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">Zero</div>
+      <div class="stat-label en">major great-power wars during our entire childhood, a historically rare window</div>
+      <div class="stat-label mm">တို့တွေ ကလေးဘဝတစ်လျှောက်လုံးမှာ အင်အားကြီးနိုင်ငံတွေကြား စစ်ပွဲကြီးတွေ လုံးဝမရှိခဲ့ဘူး၊ သမိုင်းမှာ တကယ်ကို ရှားပါးတဲ့ ငြိမ်းချမ်းရေးကာလပါပဲ</div>
+    </div>
+  </div>
+
+  <p class="prose en">There were no smartphones. Social media didn't exist. The gap between rich and poor was real, but it was invisible, you couldn't scroll past someone else's life and feel the distance. A village kid and a Yangon kid heard the same songs on the same cassette tapes. That psychological equality was something no generation before or after us has quite had.</p>
+  <p class="prose mm">အဲဒီတုန်းက စမတ်ဖုန်းတွေ မရှိသေးသလို၊ ဆိုရှယ်မီဒီယာဆိုတာလည်း မပေါ်သေးဘူး။ ချမ်းသာတာနဲ့ ဆင်းရဲတာ ကွာဟချက်က တကယ်ရှိပေမဲ့ အခုခေတ်လိုတော့ သိသာမနေခဲ့ဘူး — တခြားသူတွေရဲ့ ဘဝကို ဖုန်း screen ပေါ်မှာ scroll ဆွဲကြည့်ပြီး ကိုယ့်ဘဝနဲ့ ဘယ်လောက်ကွာခြားနေလဲဆိုတာကို နှိုင်းယှဉ်နေစရာ နည်းလမ်းမှ မရှိတာ။ နယ်ကကလေးပဲဖြစ်ဖြစ်၊ ရန်ကုန်ကကလေးပဲဖြစ်ဖြစ် တူညီတဲ့ ကဆက်တိပ်လေးတွေနဲ့ တူညီတဲ့ သီချင်းတွေကိုပဲ နားထောင်ခဲ့ကြတာလေ။ အဲဒီလိုမျိုး စိတ်ပိုင်းဆိုင်ရာ တန်းတူညီမျှမှုရှိခဲ့တာဟာ တို့တွေမတိုင်ခင်နဲ့ တို့တွေနောက်ပိုင်း ဘယ်မျိုးဆက်မှာမှ မရှိခဲ့တဲ့ ထူးခြားမှုတစ်ခုပါပဲ။</p>
+
+  <div class="myanmar-callout">
+    <div class="lbl en">Myanmar : my childhood in context</div>
+    <div class="lbl mm">မြန်မာနိုင်ငံ : ကျွန်မ ဖြတ်သန်းခဲ့ရတဲ့ ကလေးဘဝအကြောင်း</div>
+    <h3 class="en">Born in a village. Moved to the city at five. The cassette tape was our internet.</h3>
+    <h3 class="mm">ရွာမှာမွေးပြီး ၅ နှစ်သားမှာ မြို့တက်လာခဲ့တယ်။ အဲဒီတုန်းကတော့ ကဆက်တိပ်လေးတွေက တို့တွေရဲ့ အင်တာနက်ပေါ့။</h3>
+    <p class="en">Myanmar in the 1990s was politically dark, military rule, censorship, isolation. But the texture of daily life had something that data struggles to capture. In Myanmar, the cassette tape peaked in the 1990s. The Sony Walkman was a coveted fashion item for youngsters until the early 2000s. To get a foreign song, you saved your lunch money for weeks and waited. That scarcity made every song matter. Music arrived with weight. You remembered where you were when you first heard it.</p>
+    <p class="mm">၁၉၉၀ ပြည့်နှစ်တွေတုန်းက မြန်မာနိုင်ငံရဲ့ အခြေအနေက နိုင်ငံရေးအရ တကယ့်ကို မှောင်မိုက်နေခဲ့တာပါ၊ စစ်အုပ်ချုပ်ရေး၊ သတင်းပိတ်ဆို့မှုတွေနဲ့ ကမ္ဘာကြီးနဲ့ အဆက်အသွယ်ပြတ်နေခဲ့တဲ့ အချိန်ပေါ့။ ဒါပေမဲ့ အဲဒီတုန်းက ဖြတ်သန်းခဲ့ရတဲ့ နေ့စဉ်ဘဝရဲ့ ခံစားချက်ကတော့ ဒေတာတွေနဲ့ ဖော်ပြဖို့ တကယ်ပဲ ခက်ခဲပါတယ်။ မြန်မာနိုင်ငံမှာ ၁၉၉၀ ပြည့်နှစ်တွေဟာ ကဆက်တိပ်တွေ အခေတ်ဆုံးအချိန်ဖြစ်သလို Sony Walkman လေး တစ်လုံးရှိဖို့ဆိုတာ ၂၀၀၀ ပြည့်နှစ်အစောပိုင်းအထိ လူငယ်တွေကြားမှာ အရှိန်အဝါတစ်ခုပဲ။ နိုင်ငံခြားသီချင်းတစ်ပုဒ်လောက် နားထောင်နိုင်ဖို့ဆိုရင် မုန့်ဖိုးတွေကို ရက်ပေါင်းများစွာ စုဆောင်းပြီးမှ စောင့်နားထောင်ခဲ့ရတာ။ အဲဒီလို ခက်ခက်ခဲခဲ ရလာခဲ့တဲ့ ရှားပါးမှုကြောင့်ပဲ သီချင်းတိုင်းက တို့တွေအတွက် တန်ဖိုးရှိနေခဲ့တာပါ။ သီချင်းတစ်ပုဒ်က ကိုယ့်ဆီကို အလေးအနက် ရောက်လာသလိုမျိုးပေါ့။ အဲဒီသီချင်းကို ပထမဆုံး စကြားခဲ့တဲ့အချိန်မှာ ကိုယ်ဘယ်နေရာ ရောက်နေလဲဆိုတာကိုတောင် အခုထိ မှတ်မိနေတုန်းပဲ။</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       PART TWO — THE MUSIC
+  ═══════════════════════════════════════════ -->
+  <div class="part">
+    <span class="part-num">Two</span>
+    <span class="en">The music really was different and the data shows why</span>
+    <span class="mm">အဲဒီတုန်းက သီချင်းတွေက တကယ်ကို ထူးခြားခဲ့တာပါ ဒေတာတွေက ဘာကြောင့်လဲဆိုတာ အဖြေထုတ်ပေးနေသလိုပဲ</span>
+  </div>
+
+  <p class="prose en">My first question when the song stopped me while ironing: is this nostalgia, or was the music genuinely better? I went looking for research. It turns out that what I felt had a measurable explanation.</p>
+  <p class="prose mm">မီးပူတိုက်နေရင်း အဲဒီသီချင်းလေးကြောင့် ခဏလောက် ငေးသွားရတဲ့အချိန်မှာ ပထမဆုံး တွေးမိတာက ဒါက အတိတ်ကို လွမ်းနေတာသက်သက်ပဲလား၊ ဒါမှမဟုတ် အဲဒီတုန်းက သီချင်းတွေက တကယ်ပဲ ပိုကောင်းခဲ့တာလား? ဆိုတာပါပဲ။ အဲဒါနဲ့ပဲ သုတေသနအချို့ကို လိုက်ရှာကြည့်မိတယ်။ အဖြေကတော့... ကျွန်မ ခံစားခဲ့ရတဲ့ အရာတွေက အချက်အလက်တွေနဲ့ သေသေချာချာ ရှင်းပြလို့ရနေတာကို တွေ့လိုက်ရပါတယ်။</p>
+
+  <p class="chart-title en">The shrinking song: how average track lengths have dropped over the decades 1970s to 2020s (minutes)</p>
+  <p class="chart-title mm">တိုတောင်းလာတဲ့ သီချင်းများ ဆယ်စုနှစ်အလိုက် သီချင်းတစ်ပုဒ်ရဲ့ ပျမ်းမျှကြာချိန် ဘယ်လိုပြောင်းလဲလာသလဲ : ၁၉၇၀ မှ ၂၀၂၀ ပြည့်နှစ်များ (မိနစ်)</p>
+  <p class="chart-sub">Source: Chartmetric 2024 Year in Music · Washington Post analysis · PRS for Music / Ostereo study</p>
+  <div class="chart-wrap" style="height:260px;"><canvas id="songLengthChart"></canvas></div>
+
+  <div class="insight">
+    <div class="insight-lbl en">What the 30-second rule did to music</div>
+    <div class="insight-lbl mm">"စက္ကန့် ၃၀ စည်းမျဉ်း" က သီချင်းတွေကို ဘယ်လို ပြောင်းလဲပစ်လိုက်သလဲ</div>
+    <div class="insight-text en">Spotify pays artists only if a listener stays for at least 30 seconds. So songs now race to the hook in under 15 seconds. Bridges are disappearing. Intros are gone. The song is no longer built for a human journey, it is built for an algorithm's attention window. The music we grew up with was made for people. Today's music is made for platforms.</div>
+    <div class="insight-text mm">Spotify နားထောင်သူတစ်ယောက်က အနည်းဆုံး စက္ကန့် ၃၀ ကြာအောင် နားထောင်မှသာ အနုပညာရှင်ကို ငွေပေးတာပါ။ အဲဒီတော့ အခုခေတ် သီချင်းတွေက ၁၅ စက္ကန့်မပြည့်ခင်မှာတင် နားထောင်သူ စိတ်ဝင်စားသွားအောင် Hook (အလန်းဆုံးအပိုင်း) ဆီကို အတင်းပြေးနေကြရတော့တယ်။ သီချင်းတစ်ပုဒ်ရဲ့ အရသာဖြစ်တဲ့ Bridge အပိုင်းတွေ၊ Intro အပိုင်းတွေက တဖြည်းဖြည်း ပျောက်ကွယ်လာနေပြီ။ သီချင်းတစ်ပုဒ်ကို လူသားတစ်ယောက်ရဲ့ ခံစားချက်ခရီးစဉ်တစ်ခုလို အနုပညာဆန်ဆန် မဖန်တီးတော့ဘဲ... algorithm ရဲ့ အာရုံစိုက်မှုကို ခဏလေးအတွင်း ရအောင်ယူဖို့ပဲ ဦးတည်လာကြတယ်။ တို့တွေ ငယ်ငယ်က နားထောင်ခဲ့တဲ့ သီချင်းတွေက လူတွေအတွက် ဖန်တီးခဲ့တာပါ။ အခုခေတ် သီချင်းတွေကတော့ platform တွေအတွက်ပဲ ဖန်တီးထားသလို ဖြစ်နေရရှာတယ်။</div>
+  </div>
+
+  <p class="chart-title en">The simplification of sound, how musical layers and harmony have faded over time</p>
+  <p class="chart-title mm">ရိုးရှင်းသွားတဲ့ သီချင်းသံစဉ်များ ဆယ်စုနှစ်အလိုက် သီချင်းတွေရဲ့ နက်နဲမှုနဲ့ ဂီတအလွှာတွေ ဘယ်လိုလျော့နည်းလာသလဲ</p>
+  <p class="chart-sub">Source: Spanish National Research Council · Nature (2012) · 500,000 recordings analyzed, 1955–2010</p>
+  <div class="chart-wrap" style="height:260px;"><canvas id="diversityChart"></canvas></div>
+
+  <div class="insight">
+    <div class="insight-lbl en">The number that proved my feeling right</div>
+    <div class="insight-lbl mm">ကျွန်မရဲ့ ခံစားချက်က မှန်နေတယ်ဆိုတာကို သက်သေပြလိုက်တဲ့ ဂဏန်းအချက်အလက်များ</div>
+    <div class="insight-text en">The Spanish National Research Council analyzed 500,000 recordings from 1955 to 2010. Harmonic complexity, timbral diversity, and lyric intelligence all peaked in the mid-1990s to early 2000s, and have declined measurably since. By 2014, the average top-10 song was 22% more repetitive than songs from 1960. What I felt while ironing was real. It was not nostalgia. It was data.</div>
+    <div class="insight-text mm">စပိန်အမျိုးသား သုတေသနကောင်စီက ၁၉၅၅ ကနေ ၂၀၁၀ အထိ ထွက်ရှိခဲ့တဲ့ သီချင်းမှတ်တမ်းပေါင်း ၅ သိန်းကျော်ကို အသေးစိတ် ခွဲခြမ်းစိတ်ဖြာခဲ့ပါတယ်။ အဲဒီမှာ သီချင်းတွေရဲ့ တေးသွားအလွှာစုံမှု၊ အသံအရောင်အသွေး ကွဲပြားမှုနဲ့ သီချင်းစာသားတွေရဲ့ နက်နဲမှုဟာ ၁၉၉၀ ပြည့်နှစ် အလယ်ပိုင်းကနေ ၂၀၀၀ ပြည့်နှစ် အစောပိုင်းမှာ အမြင့်ဆုံးကို ရောက်ခဲ့ပြီး... အဲဒီနောက်ပိုင်းမှာတော့ သိသိသာသာကြီးကို လျော့နည်းသွားခဲ့တာပါ။ ၂၀၁၄ ခုနှစ်ရဲ့ ထိပ်တန်းသီချင်းတွေဟာ ၁၉၆၀ ပြည့်နှစ်က သီချင်းတွေထက် ၂၂ ရာခိုင်နှုန်းလောက် ပိုပြီးတော့ ထပ်တလဲလဲ ဖြစ်နေတာကို တွေ့ရပါတယ်။ ဒါကြောင့် မီးပူတိုက်နေရင်း ကျွန်မ ခံစားလိုက်ရတဲ့ အရာက အတိတ်ကို လွမ်းနေတာသက်သက် မဟုတ်ပါဘူး။ အချက်အလက်တွေကပါ ထောက်ခံနေတဲ့ တကယ့်အရှိတရား ဖြစ်နေတာပါ။</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       PART THREE — THE GENERATION
+  ═══════════════════════════════════════════ -->
+  <div class="part">
+    <span class="part-num">Three</span>
+    <span class="en">The generation timeline, from best years to worst midlife</span>
+    <span class="mm">တို့မျိုးဆက်ရဲ့ ဘဝခရီးစဉ် အကောင်းဆုံး နှစ်ကာလတွေကနေ... အခက်ခဲဆုံး လူလတ်ပိုင်းဘဝဆီသို့</span>
+  </div>
+
+  <p class="prose en">This is not just a music story. The song was just the door. What I was really feeling was the shape of an entire generation's life, born into stability, grown up in a golden window, and then handed the bill for everything that came after.</p>
+  <p class="prose mm">ဒါဟာ သီချင်းတွေအကြောင်းသက်သက်တင် မဟုတ်ပါဘူး။ သီချင်းဆိုတာက အတွေးစလေးတွေ ပွင့်သွားအောင် ဖွင့်ပေးလိုက်တဲ့ တံခါးတစ်ချပ်ပါပဲ။ ကျွန်မ တကယ် ခံစားနေရတာက မျိုးဆက်တစ်ခုလုံးရဲ့ ဘဝပုံသဏ္ဍာန် ပြောင်းလဲသွားတာကိုပါ။ အေးချမ်းတည်ငြိမ်တဲ့ ကမ္ဘာကြီးထဲမှာ မွေးဖွားလာခဲ့ပြီး၊ ရွှေ‌ရောင်တောက်တဲ့ ကာလတစ်ခုမှာ ကြီးပြင်းခွင့်ရခဲ့ပေမဲ့... အခု လူလတ်ပိုင်းအရွယ် ရောက်တဲ့အခါမှာတော့ အရင်က ဖြစ်ပျက်ခဲ့သမျှ အကျိုးဆက်တွေအားလုံးရဲ့ ဝန်ထုပ်ဝန်ပိုးတွေကို ကိုယ်တိုင် ထမ်းပိုးနေရသလို ခံစားနေရတာပါ။</p>
+
+  <div class="timeline" id="genTimeline"></div>
+
+  <!-- ═══════════════════════════════════════════
+       PART FOUR — THE MIDLIFE
+  ═══════════════════════════════════════════ -->
+  <div class="part">
+    <span class="part-num">Four</span>
+    <span class="en">The worst midlife, the housing and wealth data</span>
+    <span class="mm">အခက်ခဲဆုံး လူလတ်ပိုင်းဘဝ အိမ်ရာနဲ့ ဓနဥစ္စာ ပိုင်ဆိုင်မှုဆိုင်ရာ ဒေတာများ</span>
+  </div>
+
+  <p class="prose en">The cruelest part of being a millennial is not the debt or the housing prices in isolation. It is the timing. We were shown what a stable life looked like, we grew up in it, and then found ourselves priced out of recreating it just as we were supposed to.</p>
+  <p class="prose mm">Millennial တစ်ယောက်ဖြစ်ရတာရဲ့ အခက်ခဲဆုံးအပိုင်းက ကြွေးမြီတွေ ဒါမှမဟုတ် အိမ်ခြံမြေဈေးနှုန်းတွေ တစ်ခုတည်းကြောင့် မဟုတ်ပါဘူး။ တကယ်တော့ ဒါဟာ "အချိန်အခါ" ကြောင့်ပါ။ တို့တွေဟာ တည်ငြိမ်အေးချမ်းတဲ့ ဘဝဆိုတာ ဘယ်လိုမျိုးလဲဆိုတာကို ကလေးဘဝတုန်းက မျက်မြင်ကိုယ်တွေ့ ကြီးပြင်းခဲ့ရတယ်။ ဒါပေမဲ့ တို့တွေကိုယ်တိုင် အဲဒီလို တည်ငြိမ်တဲ့ ဘဝတစ်ခုကို ပြန်လည်တည်ဆောက်ရမယ့် အရွယ်ရောက်လာတဲ့အခါမှာတော့... အားလုံးက လက်လှမ်းမမီနိုင်တော့တဲ့ ဈေးနှုန်းတွေ ဖြစ်နေတာကို တွေ့လိုက်ရတာပါပဲ။</p>
+
+  <p class="chart-title en">Homeownership rates by generation current (2024)</p>
+  <p class="chart-title mm">မျိုးဆက်အလိုက် အိမ်ပိုင်ဆိုင်မှုနှုန်း လက်ရှိ (၂၀၂၄)</p>
+  <p class="chart-sub">Source: Apartment List 2025 Millennial Homeownership Report · U.S. Census Bureau Current Population Survey</p>
+  <div class="chart-wrap" style="height:260px;"><canvas id="housingChart"></canvas></div>
+
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-num">300<span>%</span></div>
+      <div class="stat-label en">more student debt millennials carry than their parents did at the same age</div>
+      <div class="stat-label mm">မိဘတွေရဲ့ အရွယ်တူတုန်းကထက် ကျောင်းစရိတ်ကြွေးမြီ ၃၀၀% ပိုများနေတဲ့ Millennial များ</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">27<span>pts</span></div>
+      <div class="stat-label en">gap between boomer homeownership (74%) and millennial homeownership (47%) today</div>
+      <div class="stat-label mm">ယနေ့ခေတ် Boomer တွေရဲ့ အိမ်ပိုင်ဆိုင်မှု (၇၄%) နဲ့ Millennial တွေရဲ့ ပိုင်ဆိုင်မှု (၄၇%) ကြားက ၂၇ မှတ်အထိ ကွာဟချက်</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">2008</div>
+      <div class="stat-label en">The year many millennials entered the job market, exactly when the global financial crisis hit</div>
+      <div class="stat-label mm">Millennial အများစု အလုပ်ခွင်ထဲ စဝင်တဲ့နှစ် ကမ္ဘာ့စီးပွားရေးပျက်ကပ်ကြီးနဲ့ အတိအကျ သွားတိုးတဲ့အချိန်ပေါ့</div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <div class="insight-lbl en">Hit three times at the worst possible moments</div>
+    <div class="insight-lbl mm">အဆိုးဆုံး အချိန်အခါတွေမှာ သုံးကြိမ်တိုင်တိုင် ရိုက်ခတ်ခံခဲ့ရတဲ့ တို့မျိုးဆက်</div>
+    <div class="insight-text en">Millennials graduated into the 2008 financial crisis. Tried to buy homes in the 2010s housing boom. Then COVID hit right as careers were hitting their stride. Three economic shocks at exactly the three most critical life stages, entering work, buying a home, peak earning years. No other generation in modern history has been hit at all three moments.</div>
+    <div class="insight-text mm">Millennial တွေ ကျောင်းပြီးလို့ အလုပ်ခွင်ထဲ စဝင်ကာစမှာ ၂၀၀၈ စီးပွားရေးပျက်ကပ်ကြီးနဲ့ ကြုံခဲ့ရတယ်။ အဲဒီနောက် ၂၀၁၀ ပြည့်နှစ်တွေမှာ အိမ်တစ်လုံးဝယ်ဖို့ ကြိုးစားတဲ့အခါမှာလည်း အိမ်ခြံမြေဈေးတွေက အဆမတန် ထိုးတက်သွားပြန်တယ်။ နောက်ဆုံး... အလုပ်အကိုင်တွေ အရှိန်ရလာပြီး ဝင်ငွေအကောင်းဆုံးအချိန် ရောက်ခါနီးမှာပဲ COVID က ထပ်ပြီး ရိုက်ခတ်သွားခဲ့တာပါ။ ဘဝရဲ့ အရေးအကြီးဆုံး အလှည့်အပြောင်း သုံးခုဖြစ်တဲ့ အလုပ်စဝင်ချိန်၊ အိမ်ဝယ်ချိန်နဲ့ ဝင်ငွေအကောင်းဆုံးအချိန်တွေမှာ... အခုလို စီးပွားရေး အကျပ်အတည်းတွေနဲ့ ဆက်တိုက် ရင်ဆိုင်ခဲ့ရတဲ့မျိုးဆက်ဟာ ခေတ်သစ်သမိုင်းမှာ တို့တွေကလွဲလို့ တခြားဘယ်သူမှ မရှိပါဘူး။</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       PART FIVE — MYANMAR
+  ═══════════════════════════════════════════ -->
+  <div class="part">
+    <span class="part-num">Five</span>
+    <span class="en">Myanmar — the same story, but harder</span>
+    <span class="mm">မြန်မာနိုင်ငံ — ကမ္ဘာနဲ့တူညီတဲ့ အခက်အခဲ၊ ဒါပေမဲ့ ပိုပြီး ပြင်းထန်တဲ့ ဒဏ်ရာများ</span>
+  </div>
+
+  <p class="prose en">Everything I described above happened globally. But for Myanmar millennials, there was a fourth shock, one that no economic model had prepared us for. On February 1, 2021, the military staged a coup. We were in our early thirties. Exactly the settling-down years. The floor disappeared.</p>
+  <p class="prose mm">အပေါ်မှာ ပြောခဲ့တဲ့ အချက်အလက်တွေအားလုံးက ကမ္ဘာတစ်ဝန်းမှာ ဖြစ်ပျက်ခဲ့တာပါ။ ဒါပေမဲ့ မြန်မာ Millennial တွေအတွက်တော့ ဘယ်စီးပွားရေး ပညာရှင်မှ ကြိုတင်တွက်ဆမထားနိုင်တဲ့ စတုတ္ထမြောက် ရိုက်ခတ်မှုကြီးတစ်ခု ရှိနေပါသေးတယ်။ ၂၀၂၁ ခုနှစ် ဖေဖော်ဝါရီလ ၁ ရက်နေ့မှာ စစ်တပ်က အာဏာသိမ်းလိုက်တာပါပဲ။ အဲဒီအချိန်မှာ တို့တွေက အသက် ၃၀ ဝန်းကျင်... ဘဝကို အခြေတကျ တည်ဆောက်ရမယ့် အရွယ်တွေပေါ့။ အဲဒီမနက်ခင်းမှာတင် တို့တွေရဲ့ ခြေထောက်အောက်က မြေကြီး (အနာဂတ်) တစ်ခုလုံး ကျွံကျ ပျောက်ကွယ်သွားခဲ့ရပါတယ်။</p>
+
+  <p class="chart-title en">Myanmar economy — key indicators before and after the 2021 coup</p>
+  <p class="chart-title mm">မြန်မာ့စီးပွားရေး — ၂၀၂၁ အာဏာသိမ်းမှု မတိုင်မီနဲ့ နောက်ပိုင်း အဓိက အပြောင်းအလဲများ</p>
+  <p class="chart-sub">Source: World Bank · UN News · Fulcrum SG · Economy of Myanmar, Wikipedia</p>
+  <div class="chart-wrap" style="height:280px;"><canvas id="myanmarChart"></canvas></div>
+
+  <div class="myanmar-callout">
+    <div class="lbl en">What the numbers mean in a real life</div>
+    <div class="lbl mm">ဂဏန်းများသည် တကယ့်ဘဝတွင် ဘာကိုဆိုလိုသနည်း</div>
+    <h3 class="en">The kyat lost 70% of its value. A meal that cost 875 kyat now costs 2,280. A generation that was ready to buy homes found the floor had gone.</h3>
+    <h3 class="mm">မြန်မာကျပ်ငွေ တန်ဖိုး ၇၀% လောက် ထိုးကျသွားခဲ့တယ်။ အရင်က ၈၇၅ ကျပ်ပဲ ပေးရတဲ့ ထမင်းတစ်နပ်က အခုဆို ၂,၂၈၀ ကျပ် ဖြစ်သွားပြီ။ ကိုယ်ပိုင်အိမ်လေးတစ်လုံး ဝယ်ဖို့ အားခဲထားတဲ့ မျိုးဆက်တစ်ခုအတွက်တော့ အိမ်မက်တွေအားလုံး လေထဲမှာ ပျောက်ကွယ်သွားခဲ့ရပြီပေါ့။</h3>
+    <p class="en">Myanmar's GDP has contracted by 9% since 2020, reversing an entire decade of economic progress. Inflation peaked at 35% in 2022 and remained above 25% through 2024. The kyat fell from 1,330 per US dollar before the coup to over 4,500 by 2025. Rice prices rose 220% between 2021 and 2024. 77% of Myanmar households are now poor or near-poor, up from 58% in 2017. The generation that grew up during Myanmar's decade of cautious optimism, 2010 to 2020 watched that decade collapse in a single morning.</p>
+    <p class="mm">မြန်မာနိုင်ငံရဲ့ GDP ဟာ ၂၀၂၀ ကတည်းက ၉% လောက် ကျဆင်းသွားခဲ့တာဟာ ဆယ်စုနှစ်တစ်ခုစာ ကြိုးစားခဲ့သမျှ စီးပွားရေးတိုးတက်မှုတွေကို နောက်ပြန်ဆွဲလိုက်သလိုပါပဲ။ ငွေကြေးဖောင်းပွမှုဟာလည်း ၂၀၂၂ မှာ ၃၅% အထိ အမြင့်ဆုံး ရောက်ခဲ့ပြီး ၂၀၂၄ အထိ ၂၅% အထက်မှာပဲ ရှိနေဆဲပါ။ အာဏာမသိမ်းခင်က တစ်ဒေါ်လာကို ၁,၃၃၀ ကျပ်ပဲ ရှိခဲ့တဲ့ ငွေလဲနှုန်းက ၂၀၂၅ မှာ ၄,၅၀၀ ကျော်အထိ ဖြစ်သွားခဲ့တယ်။ ဆန်ဈေးနှုန်းကလည်း ၃ နှစ်အတွင်း ၂၂၀% တောင် တက်သွားခဲ့ပါတယ်။ အခုဆိုရင် မြန်မာအိမ်ထောင်စု ၇၇% ဟာ ဆင်းရဲမွဲတေမှုရဲ့ အောက်ခြေကို ရောက်သွားခဲ့ပါပြီ။ ၂၀၁၀ ကနေ ၂၀၂၀ အထိ... မျှော်လင့်ချက်အပြည့်နဲ့ ကြီးပြင်းလာခဲ့ရတဲ့ မျိုးဆက်တစ်ခုဟာ ဆယ်နှစ်စာ တည်ဆောက်ခဲ့သမျှတွေ တစ်မနက်ခင်းတည်းနဲ့ ပြိုလဲသွားတာကို မျက်မြင်ကိုယ်တွေ့ ကြုံခဲ့ရတာပါ။</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       PART SIX — THE CLOSING
+  ═══════════════════════════════════════════ -->
+  <div class="part">
+    <span class="part-num">Six</span>
+    <span class="en">What it means to have been born in the right window</span>
+    <span class="mm">ကမ္ဘာကြီးရဲ့ အလှပဆုံး အချိန်အခါလေးတစ်ခုမှာ မွေးဖွားခွင့်ရခဲ့ခြင်းရဲ့ အဓိပ္ပာယ်</span>
+  </div>
+
+  <blockquote>
+    <span class="en">"We were the last generation to grow up before everything changed twice, once when social media arrived, and once when the world we thought we were inheriting was taken away."</span>
+    <span class="mm">"တို့တွေဟာ အရာအားလုံး နှစ်ကြိမ်တိုင်တိုင် အကြီးအကျယ် မပြောင်းလဲခင်မှာ ကြီးပြင်းခဲ့ရတဲ့ နောက်ဆုံးမျိုးဆက်ပါ။ ပထမတစ်ကြိမ်က ဆိုရှယ်မီဒီယာတွေ ရောက်လာတဲ့အချိန်၊ နောက်တစ်ကြိမ်ကတော့ တို့တွေ အမွေဆက်ခံရမယ်လို့ ထင်ထားခဲ့တဲ့ ကမ္ဘာကြီးကို တစ်စစီ ဖျက်ဆီးခံလိုက်ရတဲ့အချိန်ပေါ့။"</span>
+  </blockquote>
+
+  <p class="prose en">I am not writing this to complain. I am writing this because naming something clearly is its own kind of relief. The feeling I had while ironing that those years had something real, turned out to be supported by economists, musicologists, housing researchers, and the World Bank. It was not nostalgia. It was pattern recognition.</p>
+  <p class="prose mm">ဒါကို ကျွန်မက အပြစ်ပြောချင်လို့ ရေးနေတာ မဟုတ်ပါဘူး။ တစ်ခါတလေကျတော့လည်း ကိုယ်ခံစားနေရတဲ့ အရာတစ်ခုကို နာမည်တပ်ပြီး ရှင်းရှင်းလင်းလင်း ဖော်ပြလိုက်ရတာကပဲ စိတ်သက်သာရာရစေလို့ပါ။ မီးပူတိုက်နေရင်း ခံစားလိုက်ရတဲ့ "အဲဒီတုန်းက အရာအားလုံးက အစစ်အမှန်တွေပါလား" ဆိုတဲ့ ခံစားချက်ဟာ... တကယ်တော့ စီးပွားရေးပညာရှင်တွေ၊ ဂီတပညာရှင်တွေ၊ အိမ်ရာသုတေသီတွေနဲ့ ကမ္ဘာ့ဘဏ်ရဲ့ အချက်အလက်တွေအရပါ မှန်ကန်နေတာကို တွေ့ရပါတယ်။ ဒါဟာ အတိတ်ကို လွမ်းဆွတ်နေတာ သက်သက်မဟုတ်ဘဲ... ဖြစ်ပျက်ခဲ့သမျှ အပြောင်းအလဲတွေကို ဒေတာတွေကတစ်ဆင့် ပြန်လည်သတိပြုမိသွားတာ (Pattern Recognition) ပါပဲ။</p>
+
+  <p class="prose en">We had the Great Moderation as our childhood backdrop. We had the most musically diverse decade in fifty years as our teenage soundtrack. We had a world that felt like it was opening. And then for all millennials, the 2008 crisis, the housing crunch, the debt. And for Myanmar millennials specifically: a coup at 30, a currency in freefall, a meal that costs three times what it did four years ago.</p>
+  <p class="prose mm">တို့တွေရဲ့ ကလေးဘဝဟာ "Great Moderation" လို့ခေါ်တဲ့ ငြိမ်းချမ်းတည်ငြိမ်မှုတွေကြားမှာ ရှိခဲ့တယ်။ တို့တွေရဲ့ ဆယ်ကျော်သက်အရွယ်မှာတော့ နှစ်ပေါင်းငါးဆယ်အတွင်း ဂီတအစုံလင်ဆုံး ဆယ်စုနှစ်ရဲ့ သီချင်းသံစဉ်တွေက ခြံရံထားခဲ့တယ်။ ကမ္ဘာကြီးက တို့တွေအတွက် ပွင့်လင်းလာနေပြီလို့ ခံစားခဲ့ရဖူးတယ်။ အဲဒီနောက်မှာတော့... Millennial အားလုံးအတွက် ၂၀၀၈ စီးပွားရေးပျက်ကပ်၊ အိမ်ခြံမြေဈေးတွေ ထိုးတက်မှုနဲ့ ကြွေးမြီတွေ ရောက်လာခဲ့တယ်။ မြန်မာ Millennial တွေအတွက်ကတော့ ပိုပြီး ထူးထူးခြားခြား ဆိုးဆိုးရွားရွားပါပဲ အသက် ၃၀ မှာ အာဏာသိမ်းခံရတာ၊ ငွေကြေးတန်ဖိုးတွေ ထိုးကျသွားတာနဲ့ လေးနှစ်အတွင်းမှာတင် အစားအသောက်ဈေးနှုန်းတွေက ၃ ဆလောက် တက်သွားတာမျိုးပေါ့။</p>
+
+  <p class="prose en">The ironing is done. The playlist is still going. And now I understand why those songs stop me every time.</p>
+  <p class="prose mm">အခုတော့ မီးပူတိုက်လို့ ပြီးသွားပါပြီ။ Playlist လေးကတော့ ဆက်သွားနေတုန်းပဲ။ အခုမှပဲ... အဲဒီသီချင်းတွေ ကြားတိုင်း ဘာလို့ ခဏခဏ ငေးသွားရလဲဆိုတာကို ကျွန်မ သေချာနားလည်သွားပါတော့တယ်။</p>
+
+  <!-- DISCLAIMER -->
+  <div class="disclaimer">
+    <span class="en"><strong>Note:</strong> This is a personal data exploration project made for curiosity and learning. I am a Burmese millennial writing about my own generation, drawing on publicly available research. I am not an economist or academic. Some figures are estimates or approximations. Always verify with original sources before citing.</span>
+    <span class="mm"><strong>မှတ်ချက်:</strong>သိလိုစိတ်နှင့် လေ့လာလိုစိတ်ဖြင့် ဖန်တီးထားသော တစ်ကိုယ်ရေသုံး Data Project တစ်ခုသာ ဖြစ်သည်။ ကျွန်မသည် စီးပွားရေးပညာရှင် သို့မဟုတ် ပညာရှင်တစ်ဦး မဟုတ်ဘဲ အများပြည်သူသို့ ထုတ်ပြန်ထားသော သုတေသနများကို အခြေခံ၍ မိမိမျိုးဆက်အကြောင်းကို ရေးသားထားသော မြန်မာ Millennial တစ်ဦးသာ ဖြစ်ပါသည်။ ကိန်းဂဏန်းအချို့မှာ ခန့်မှန်းချက်များသာ ဖြစ်နိုင်သဖြင့် ကိုးကားလိုပါက မူရင်းရင်းမြစ်များတွင် ပြန်လည်အတည်ပြုရန် အကြံပြုလိုပါသည်။</span>
+  </div>
+
+  <!-- SOURCES -->
+  <div class="sources">
+    <p class="sources-title en">Data sources &amp; references</p>
+    <p class="sources-title mm">ဒေတာ အရင်းအမြစ်များနှင့် ကိုးကားချက်များ</p>
+
+    <div class="source-item"><span class="source-num">1</span><div>
+      <a class="source-link" href="https://en.wikipedia.org/wiki/Great_Moderation" target="_blank">The Great Moderation</a>
+      <span class="source-meta">Wikipedia / Stock & Watson (2002) · Federal Reserve research <span class="source-tag">Economic stability</span></span>
+    </div></div>
+
+    <div class="source-item"><span class="source-num">2</span><div>
+      <a class="source-link" href="https://www.nber.org/digest/oct02/economic-growth-reducing-global-poverty" target="_blank">Economic Growth is Reducing Global Poverty</a>
+      <span class="source-meta">NBER · Sala-i-Martin (2002) <span class="source-tag">Poverty data</span></span>
+    </div></div>
+
+    <div class="source-item"><span class="source-num">3</span><div>
+      <a class="source-link" href="https://www.irrawaddy.com/culture/exhibition-relives-the-heyday-of-the-cassette-tape.html" target="_blank">Exhibition Relives the Heyday of the Cassette Tape</a>
+      <span class="source-meta">The Irrawaddy · Myanmar cassette era <span class="source-tag">Myanmar music</span></span>
+    </div></div>
+
+    <div class="source-item"><span class="source-num">4</span><div>
+      <a class="source-link" href="https://theconversation.com/from-art-form-to-asset-our-study-found-popular-songs-are-becoming-more-generic-266097" target="_blank">From art form to asset: popular songs are becoming more generic</a>
+      <span class="source-meta">The Conversation · 2025 · Hip-hop 2002 vs 2022 study <span class="source-tag">Music diversity</span></span>
+    </div></div>
+
+    <div class="source-item"><span class="source-num">5</span><div>
+      <a class="source-link" href="https://whyevolutionistrue.com/2017/08/26/objective-proof-that-modern-pop-music-has-degenerated-and-the-reason-why/" target="_blank">Objective proof that modern pop music has degenerated</a>
+      <span class="source-meta">Spanish National Research Council / Nature (2012) · 500,000 recordings <span class="source-tag">Harmonic complexity</span></span>
+    </div></div>
+
+    <div class="source-item"><span class="source-num">6</span><div>
+      <a class="source-link" href="https://www.washingtonpost.com/entertainment/interactive/2024/shorter-songs-again/" target="_blank">Pop songs are getting shorter in the era of streaming and TikTok</a>
+      <span class="source-meta">Washington Post · 2024 · Song length analysis <span class="source-tag">Streaming effect</span></span>
+    </div></div>
+
+    <div class="source-item"><span class="source-num">7</span><div>
+      <a class="source-link" href="https://www.prsformusic.com/m-magazine/features/song-length-the-spotify-effect" target="_blank">Song length: the Spotify effect</a>
+      <span class="source-meta">PRS for Music · Ostereo study · UK No.1 singles 1998–2019 <span class="source-tag">Song length</span></span>
+    </div></div>
+
+    <div class="source-item"><span class="source-num">8</span><div>
+      <a class="source-link" href="https://www.apartmentlist.com/research/millennial-homeownership-2025" target="_blank">2025 Millennial Homeownership Report</a>
+      <span class="source-meta">Apartment List · U.S. Census Bureau CPS 2024 data <span class="source-tag">Housing data</span></span>
+    </div></div>
+
+    <div class="source-item"><span class="source-num">9</span><div>
+      <a class="source-link" href="https://www.redfin.com/news/homeownership-rate-by-generation-2024/" target="_blank">Gen Z and Millennial Homeownership Rates Flatlined in 2024</a>
+      <span class="source-meta">Redfin · 2025 · U.S. Census Bureau data <span class="source-tag">Housing data</span></span>
+    </div></div>
+
+    <div class="source-item"><span class="source-num">10</span><div>
+      <a class="source-link" href="https://highline.huffingtonpost.com/articles/en/poor-millennials/" target="_blank">Millennials Are Screwed</a>
+      <span class="source-meta">HuffPost Highline · Student debt, housing, wages data <span class="source-tag">Millennial economics</span></span>
+    </div></div>
+
+    <div class="source-item"><span class="source-num">11</span><div>
+      <a class="source-link" href="https://news.un.org/en/story/2025/01/1159561" target="_blank">Four years after the coup, Myanmar remains on the brink</a>
+      <span class="source-meta">UN News · January 2025 · GDP, inflation, kyat data <span class="source-tag">Myanmar economy</span></span>
+    </div></div>
+
+    <div class="source-item"><span class="source-num">12</span><div>
+      <a class="source-link" href="https://fulcrum.sg/challenges-and-priorities-for-myanmars-conflicted-economy/" target="_blank">Challenges and Priorities for Myanmar's Conflicted Economy</a>
+      <span class="source-meta">Fulcrum SG · 2025 · Food prices, poverty rates <span class="source-tag">Myanmar economy</span></span>
+    </div></div>
+
+    <div class="source-item"><span class="source-num">13</span><div>
+      <a class="source-link" href="https://insightmyanmar.org/all-about-burma/2024/10/10/burmese-music" target="_blank">Burmese Music</a>
+      <span class="source-meta">Insight Myanmar · 2024 · History of Myanmar music scenes <span class="source-tag">Myanmar music</span></span>
+    </div></div>
+
+    <p class="sources-note en">Economic data reflects the most recent available figures as of March 2026. Music research studies cited are peer-reviewed or published by recognized academic institutions. Myanmar economic data sources include World Bank, UN agencies, and independent think tanks.</p>
+    <p class="sources-note mm">စီးပွားရေးဆိုင်ရာ အချက်အလက်များသည် ၂၀၂၆ ခုနှစ်၊ မတ်လအထိ ရရှိနိုင်သော နောက်ဆုံးကိန်းဂဏန်းများအပေါ် အခြေခံထားပါသည်။ ကိုးကားထားသော ဂီတဆိုင်ရာ သုတေသနများမှာလည်း ပညာရှင်အချင်းချင်း ပြန်လည်စစ်ဆေးအတည်ပြုထားသည့် (peer-reviewed) သို့မဟုတ် အသိအမှတ်ပြု ပညာရေးအဖွဲ့အစည်းများမှ ထုတ်ဝေထားသော လေ့လာမှုများ ဖြစ်ပါသည်။ မြန်မာ့စီးပွားရေး ဒေတာများအတွက် ကမ္ဘာ့ဘဏ် (World Bank)၊ ကုလသမဂ္ဂ အေဂျင်စီများနှင့် လွတ်လပ်သော သုတေသနအဖွဲ့အစည်းများ၏ အချက်အလက်များကို ရယူကိုးကားထားပါသည်။</p>
+  </div>
+
+</div>
+
+<script>
+const gridC = 'rgba(26,24,20,0.07)';
+const textC = '#9A9590';
+
+function setLang(lang) {
+  document.body.classList.toggle('lang-mm', lang === 'mm');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.getElementById('btn-mm').classList.toggle('active', lang === 'mm');
+}
+
+/* ─── GENERATION TIMELINE ─── */
+// ✏️ EDIT ZONE: timeline events — edit year, en/mm title and desc
+const genEvents = [
+  {
+    year: '1990–95',
+    enTitle: 'Born into the Great Moderation',
+    mmTitle: 'အေးချမ်းတည်ငြိမ်တဲ့ ကမ္ဘာကြီးထဲမှာ မွေးဖွားလာခြင်း',
+    enDesc: 'Global GDP volatility at historic lows. Extreme poverty falling faster than any period in recorded history. No major great-power wars. The backdrop to our earliest memories was the quietest the world had been in generations.',
+    mmDesc: 'ကမ္ဘာ့စီးပွားရေး အငြိမ်ဆုံးအချိန်ပေါ့။ အဆိုးဆုံး ဆင်းရဲမွဲတေမှုနှုန်းတွေလည်း သမိုင်းမှာ မကြုံစဖူး ထိုးဆင်းသွားခဲ့သလို၊ အင်အားကြီးနိုင်ငံတွေကြား စစ်ပွဲကြီးတွေလည်း မရှိခဲ့ဘူး။ တို့တွေရဲ့ အစောဆုံး ကလေးဘဝ အမှတ်တရတွေဟာ မျိုးဆက်ပေါင်းများစွာအတွင်း ကမ္ဘာကြီးရဲ့ အေးချမ်းသာယာဆုံး နောက်ခံကားချပ်ပေါ်မှာ ရှိခဲ့တာပါ။',
+  },
+  {
+    year: '1995–2005',
+    enTitle: 'Teenage years — music diversity at its peak',
+    mmTitle: 'ဆယ်ကျော်သက်နှစ်များ — ဂီတအနုပညာ အပွင့်လန်းဆုံးကာလ',
+    enDesc: 'We grew up when musical diversity, harmonic complexity, lyric depth, genre variety was at its highest point in fifty years. No algorithms. No 30-second rule. Songs were built for the length of a human feeling.',
+    mmDesc: 'သီချင်းတွေရဲ့ တေးသွား၊ စာသားနဲ့ အမျိုးအစားစုံလင်မှုတွေဟာ နှစ်ပေါင်းငါးဆယ်အတွင်း အမြင့်ဆုံးအချိန်မှာ တို့တွေ ကြီးပြင်းခဲ့ရတာပါ။ Algorithm တွေ၊ စက္ကန့် ၃၀ စည်းမျဉ်းတွေ မရှိသေးဘူး။ သီချင်းတစ်ပုဒ်ကို လူသားတစ်ယောက်ရဲ့ ခံစားချက်အတိုင်း အနုပညာဆန်ဆန် ဖန်တီးခဲ့ကြတာလေ။',
+  },
+  {
+    year: '2008',
+    enTitle: 'First shock — graduated into a financial crisis',
+    mmTitle: 'ပထမဆုံး ရိုက်ခတ်မှု — စီးပွားရေးပျက်ကပ်ကြီးထဲမှာ ကျောင်းဆင်းခဲ့ရခြင်း',
+    enDesc: 'The global financial crisis hit exactly as older millennials entered the job market. Unemployment spiked to 10%. Entry-level salaries stagnated for a decade. The economic ladder\'s first rung had been kicked away.',
+    mmDesc: 'Millennial အကြီးတွေ အလုပ်ခွင်ထဲ စဝင်မယ့်အချိန်မှာပဲ ကမ္ဘာ့ဘဏ္ဍာရေးပျက်ကပ်ကြီးက အတိအကျ ရိုက်ခတ်ခဲ့တာပါ။ အလုပ်လက်မဲ့နှုန်း ၁၀% ထိ ထိုးတက်သွားသလို၊ Entry-level လစာတွေကလည်း ဆယ်နှစ်လောက် ငြိမ်နေခဲ့တယ်။ ဘဝကို တက်လှမ်းရမယ့် လှေကားရဲ့ ပထမဆုံးအထစ်မှာ အကန်ခံလိုက်ရသလိုပါပဲ။',
+  },
+  {
+    year: '2010–18',
+    enTitle: 'Second shock — housing boom priced us out',
+    mmTitle: 'ဒုတိယ ရိုက်ခတ်မှု — အိမ်ရာဈေးတွေ ထိုးတက်ပြီး လက်လှမ်းမမီတော့ခြင်း',
+    enDesc: 'Just as millennials hit their 30s, prime homebuying age housing prices surged globally. Student debt from the 2000s expansion made down payments impossible. The homeownership rate for millennials at 35 was 8 points below Gen X at the same age.',
+    mmDesc: 'Millennial တွေ အိမ်ဝယ်ဖို့ အားခဲရမယ့် အသက် ၃၀ ဝန်းကျင်ရောက်တော့ ကမ္ဘာတစ်ဝန်းမှာ အိမ်ခြံမြေဈေးတွေက အဆမတန် ထိုးတက်သွားပြန်တယ်။ အရင်က ကျောင်းစရိတ်ကြွေးမြီတွေကြောင့်လည်း အိမ်ဦးငွေပေးဖို့ဆိုတာ မဖြစ်နိုင်တော့ဘူး။ ဒါကြောင့် အသက် ၃၅ အရွယ် Millennial တွေရဲ့ အိမ်ပိုင်ဆိုင်မှုနှုန်းဟာ အရင် Gen X တွေထက် အများကြီး နည်းသွားခဲ့ပါတယ်။',
+  },
+  {
+    year: '2020–21',
+    enTitle: 'Third and fourth shocks — COVID then the coup',
+    mmTitle: 'တတိယနဲ့ စတုတ္ထ ရိုက်ခတ်မှု — COVID နဲ့ အာဏာသိမ်းမှု',
+    enDesc: 'COVID arrived as millennials hit peak earning years. For Myanmar specifically: the February 2021 coup collapsed a decade of economic progress overnight. The kyat fell 70%. Food prices tripled. The generation that was ready to settle down found there was nowhere left to land.',
+    mmDesc: 'ဝင်ငွေအကောင်းဆုံးအချိန်ရောက်ခါနီးမှာ COVID က ရောက်လာခဲ့တယ်။ မြန်မာနိုင်ငံအတွက်တော့ ပိုဆိုးတာက ၂၀၂၁ ဖေဖော်ဝါရီ အာဏာသိမ်းမှုကြောင့် ဆယ်နှစ်စာ ကြိုးစားခဲ့သမျှ စီးပွားရေးတွေ တစ်ညတည်းနဲ့ ပြိုလဲသွားခဲ့တာပါ။ ကျပ်ငွေတန်ဖိုး ၇၀% ကျဆင်းပြီး အစားအသောက်ဈေးနှုန်းတွေ ၃ ဆလောက် တက်သွားတယ်။ ဘဝကို အခြေချဖို့ အသင့်ဖြစ်နေတဲ့ မျိုးဆက်တစ်ခုအတွက် နားခိုစရာ မြေကွက်လပ်တောင် မကျန်တော့သလိုပါပဲ။',
+  },
+];
+
+const tlEl = document.createElement('div');
+tlEl.className = 'timeline';
+genEvents.forEach(function(e) {
+  tlEl.innerHTML += `
+    <div class="t-event">
+      <div class="t-year">${e.year}</div>
+      <div class="t-body">
+        <div class="t-title"><span class="en">${e.enTitle}</span><span class="mm">${e.mmTitle}</span></div>
+        <div class="t-desc"><span class="en">${e.enDesc}</span><span class="mm">${e.mmDesc}</span></div>
+      </div>
+    </div>`;
+});
+document.getElementById('genTimeline').replaceWith(tlEl);
+
+/* ─── CHART 1: Economic Volatility ─── */
+// ✏️ EDIT ZONE: decade labels and volatility index values
+new Chart(document.getElementById('volatilityChart'), {
+  type: 'bar',
+  data: {
+    labels: ['1960s', '1970s', '1980s', '1990s', '2000–07', '2008–12', '2020s'],
+    datasets: [{
+      label: 'GDP volatility index',
+      data: [3.8, 5.2, 4.1, 2.3, 1.8, 6.1, 4.9],
+      backgroundColor: ['#B4B2A9','#B4B2A9','#B4B2A9','#C4622D','#C4622D','#A32D2D','#A32D2D'],
+      borderRadius: 4, borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => '  Volatility index: ' + ctx.parsed.y } }
+    },
+    scales: {
+      x: { ticks: { color: textC, font: { size: 12 } }, grid: { display: false }, border: { display: false } },
+      y: {
+        ticks: { color: textC, font: { size: 11 }, callback: v => v === 0 ? 'Low' : v === 6 ? 'High' : '' },
+        grid: { color: gridC }, border: { display: false }, min: 0, max: 7
+      }
+    }
+  }
+});
+
+/* ─── CHART 2: Song Length ─── */
+// ✏️ EDIT ZONE: decade labels and average song length in minutes
+new Chart(document.getElementById('songLengthChart'), {
+  type: 'line',
+  data: {
+    labels: ['1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
+    datasets: [{
+      label: 'Avg song length (mins)',
+      data: [3.9, 4.1, 4.3, 3.9, 3.7, 3.1],
+      borderColor: '#C4622D',
+      backgroundColor: 'rgba(196,98,45,0.1)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 5,
+      pointBackgroundColor: '#C4622D',
+      pointBorderColor: '#FAF9F6',
+      pointBorderWidth: 2,
+      borderWidth: 2.5
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => '  ' + ctx.parsed.y + ' min avg' } }
+    },
+    scales: {
+      x: { ticks: { color: textC, font: { size: 12 } }, grid: { display: false }, border: { display: false } },
+      y: {
+        min: 2.5, max: 5,
+        ticks: { color: textC, font: { size: 11 }, callback: v => v + ' min' },
+        grid: { color: gridC }, border: { display: false }
+      }
+    }
+  }
+});
+
+/* ─── CHART 3: Musical Diversity ─── */
+// ✏️ EDIT ZONE: decade labels and harmonic complexity index (100 = peak)
+new Chart(document.getElementById('diversityChart'), {
+  type: 'line',
+  data: {
+    labels: ['1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
+    datasets: [{
+      label: 'Harmonic complexity index',
+      data: [72, 80, 78, 95, 100, 82, 64],
+      borderColor: '#1D9E75',
+      backgroundColor: 'rgba(29,158,117,0.1)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 5,
+      pointBackgroundColor: ctx => ctx.dataIndex === 4 ? '#C4622D' : '#1D9E75',
+      pointBorderColor: '#FAF9F6',
+      pointBorderWidth: 2,
+      borderWidth: 2.5
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => '  Diversity index: ' + ctx.parsed.y } }
+    },
+    scales: {
+      x: { ticks: { color: textC, font: { size: 12 } }, grid: { display: false }, border: { display: false } },
+      y: {
+        min: 50, max: 110,
+        ticks: { color: textC, font: { size: 11 }, callback: v => v === 100 ? 'Peak' : v === 50 ? 'Low' : '' },
+        grid: { color: gridC }, border: { display: false }
+      }
+    }
+  }
+});
+
+/* ─── CHART 4: Homeownership by Generation ─── */
+// ✏️ EDIT ZONE: generation names and homeownership % at age 35
+new Chart(document.getElementById('housingChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Baby Boomers', 'Gen X', 'Millennials'],
+    datasets: [{
+      label: 'Homeownership rate 2024 (%)',
+      data: [74, 65, 47],
+      backgroundColor: ['#1D9E75', '#E8956D', '#C4622D'],
+      borderRadius: 5, borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => '  ' + ctx.parsed.y + '% own a home today' } }
+    },
+    scales: {
+      x: { ticks: { color: textC, font: { size: 12 } }, grid: { display: false }, border: { display: false } },
+      y: {
+        min: 0, max: 100,
+        ticks: { color: textC, font: { size: 11 }, callback: v => v + '%' },
+        grid: { color: gridC }, border: { display: false }
+      }
+    }
+  }
+});
+
+/* ─── CHART 5: Myanmar Economy ─── */
+// ✏️ EDIT ZONE: Myanmar economy key metrics before/after coup
+new Chart(document.getElementById('myanmarChart'), {
+  type: 'bar',
+  data: {
+    labels: ['GDP growth\n2019', 'GDP change\n2021', 'Inflation\n2019', 'Inflation\n2022', 'Poverty rate\n2017', 'Poverty rate\n2023'],
+    datasets: [{
+      label: 'Value',
+      data: [6.8, -18, 8.8, 35, 24.8, 49.7],
+      backgroundColor: ctx => {
+        const v = ctx.raw;
+        if (v < 0) return '#A32D2D';
+        if (v > 25) return '#C4622D';
+        if (v > 10) return '#E8956D';
+        return '#1D9E75';
+      },
+      borderRadius: 4, borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => '  ' + ctx.parsed.y + '%' } }
+    },
+    scales: {
+      x: { ticks: { color: textC, font: { size: 10 } }, grid: { display: false }, border: { display: false } },
+      y: {
+        ticks: { color: textC, font: { size: 11 }, callback: v => v + '%' },
+        grid: { color: gridC }, border: { display: false }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
